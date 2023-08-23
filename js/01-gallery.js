@@ -1,32 +1,45 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
+console.log(galleryItems);
+
 const galleryList = document.querySelector('.gallery');
-function createGalleryItem(item) {
-    const listItem = document.createElement('li');
-    listItem.classList.add('gallery__item');
+let instance = null;
 
-    const link = document.createElement('a');
-    link.href = item.original;
+const renderImage = (arr, container) => {
+    const marcup = arr.map((item) => `<li class="gallery__item">
+    <a class="gallery-link">
+    <img
+    class="gallery__image"
+    src="${item.preview}"
+    data-source="${item.original}"
+    alt="${item.description}"/>
+    </a>
+    </li>`).join('');
 
-    const image = document.createElement('img');
-    image.classList.add('gallery__image');
-    image.src = item.preview;
-    image.dataset.source = item.original;
-    image.alt = item.description;
+    container.insertAdjacentHTML('afterbegin', marcup)
+}
+renderImage(galleryItems, galleryList)
 
-    link.appendChild(image);
-    listItem.appendChild(link);
+function openModal(event) {
+    event.preventDefault();
 
-  return listItem;
+    if (event.target.nodeName !== 'IMG') {
+        return;
+    }
+    instance = basicLightbox.create(`
+    <div class="modal">
+        <img src="${event.target.dataset.source}">
+    </div>
+`)
+instance.show()
+    window.addEventListener('keydown', closeModalOnEsc);
 }
 
-const galleryElements = galleryItems.map(createGalleryItem);
-galleryList.append(...galleryElements);
-
-galleryList.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (e.target.nodeName === 'IMG') {
-    const largeImageUrl = e.target.dataset.source;
-    openModal(largeImageUrl);
-  }
-});
+function closeModalOnEsc(event) {
+    if (event.code === 'Escape') {
+        instance.close();
+        window.removeEventListener('keydown', closeModalOnEsc)
+    }
+    
+}
+galleryList.addEventListener('click', openModal);
