@@ -29,16 +29,21 @@ function openModal(event) {
     instance = basicLightbox.create(`
     <div class="modal">
         <img src="${event.target.dataset.source}">
-    </div>
-`)
-instance.show()
-    window.addEventListener('keydown', closeModalOnEsc);
+    </div>`, {
+        onShow: (instance) => {
+            window.addEventListener('keydown', closeModalOnEsc);
+        },
+        onClose: (instance) => {
+            window.removeEventListener('keydown', closeModalOnEsc);
+        }
+    });
+
+    instance.show();
 }
 
 function closeModalOnEsc(event) {
     if (event.code === 'Escape') {
         instance.close();
-        window.removeEventListener('keydown', closeModalOnEsc)
     }
     
 }
